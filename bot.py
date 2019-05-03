@@ -1,15 +1,18 @@
 from telegram.ext import Updater, MessageHandler, Filters, CommandHandler, ConversationHandler
 from random import shuffle
 import json
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 with open("test.json", "rt", encoding="utf8") as f:
     test = json.loads(f.read())['test']
 
 
-def start(bot, update):
+def start(bot, update, user_data):
     shuffle(test)
     update.message.reply_text(
-        "Привет. Это тест по истории, состоящий из 6 перемешанных вопросов\n"
+        "Это тест по истории, состоящий из 10 перемешанных вопросов\n"
         "Вы можете прервать тест, послав команду /stop.\n"
         "{}".format(test[0]['question']))
 
@@ -83,9 +86,71 @@ def sixth_response(bot, update, user_data):
     else:
         update.message.reply_text('Верно!')
         user_data['right_answers'] += 1
+
+    update.message.reply_text(
+        "{}".format(test[6]['question']))
+    return 7
+
+
+def seventh_response(bot, update, user_data):
+    if update.message.text != test[6]['response']:
+        update.message.reply_text(f'Неверно. Правильный ответ: {test[6]["response"]}')
+    else:
+        update.message.reply_text('Верно!')
+        user_data['right_answers'] += 1
+
+    update.message.reply_text(
+        "{}".format(test[7]['question']))
+    return 8
+
+
+def eighth_response(bot, update, user_data):
+    if update.message.text != test[7]['response']:
+        update.message.reply_text(f'Неверно. Правильный ответ: {test[7]["response"]}')
+    else:
+        update.message.reply_text('Верно!')
+        user_data['right_answers'] += 1
+
+    update.message.reply_text(
+        "{}".format(test[8]['question']))
+    return 9
+
+
+def ninth_response(bot, update, user_data):
+    if update.message.text != test[8]['response']:
+        update.message.reply_text(f'Неверно. Правильный ответ: {test[8]["response"]}')
+    else:
+        update.message.reply_text('Верно!')
+        user_data['right_answers'] += 1
+
+    update.message.reply_text(
+        "{}".format(test[9]['question']))
+    return 10
+
+
+def tenth_response(bot, update, user_data):
+    if update.message.text != test[9]['response']:
+        update.message.reply_text(f'Неверно. Правильный ответ: {test[9]["response"]}')
+    else:
+        update.message.reply_text('Верно!')
+        user_data['right_answers'] += 1
     print(user_data['right_answers'])
     update.message.reply_text(
-        'Конец теста. Количество правильных ответов - {}/6'.format(user_data["right_answers"]))
+        'Конец теста. Количество правильных ответов - {}/10'.format(user_data["right_answers"]))
+    update.message.reply_text(
+        'Желаете ли вы начать тест заново?'
+    )
+    return 11
+
+
+def last_response(bot, update, user_data):
+    print(123)
+    if update.message.text.lower() == 'да':
+        print(1)
+        return 0
+
+    print(0)
+    update.message.reply_text('Ну ладно.')
     return ConversationHandler.END
 
 
@@ -96,13 +161,14 @@ def stop(bot, update):
 
 
 conv_handler = ConversationHandler(
-    entry_points=[CommandHandler('start', start)],
+    entry_points=[CommandHandler('start', start,
+                                 pass_user_data=True)],
 
     states={
-        # Добавили user_data для сохранения ответа.
+        0: [MessageHandler(Filters.text, start,
+                           pass_user_data=True)],
         1: [MessageHandler(Filters.text, first_response,
                            pass_user_data=True)],
-        # ...и для его использования.
         2: [MessageHandler(Filters.text, second_response,
                            pass_user_data=True)],
         3: [MessageHandler(Filters.text, third_response,
@@ -112,7 +178,17 @@ conv_handler = ConversationHandler(
         5: [MessageHandler(Filters.text, fifth_response,
                            pass_user_data=True)],
         6: [MessageHandler(Filters.text, sixth_response,
-                           pass_user_data=True)]
+                           pass_user_data=True)],
+        7: [MessageHandler(Filters.text, seventh_response,
+                           pass_user_data=True)],
+        8: [MessageHandler(Filters.text, eighth_response,
+                           pass_user_data=True)],
+        9: [MessageHandler(Filters.text, ninth_response,
+                           pass_user_data=True)],
+        10: [MessageHandler(Filters.text, tenth_response,
+                            pass_user_data=True)],
+        11: [MessageHandler(Filters.text, last_response,
+                            pass_user_data=True)]
     },
 
     fallbacks=[CommandHandler('stop', stop)]

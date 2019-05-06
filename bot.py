@@ -196,7 +196,7 @@ conv_handler = ConversationHandler(
 
 
 def main():
-    updater = Updater("845010139:AAEtih9AAKtMBVRc0kvrmVAeQ712l9EYyhg")
+    updater = Updater(input("Введите токен: "))
 
     dp = updater.dispatcher
     dp.add_handler(conv_handler)
